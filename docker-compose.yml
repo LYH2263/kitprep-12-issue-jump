@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: kitprep
+      POSTGRES_PASSWORD: kitprep
+      POSTGRES_DB: kitprep
+    ports: ["5451:5432"]
+    volumes: [kitprep_pg:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kitprep -d kitprep"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+  api:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg2://kitprep:kitprep@db:5432/kitprep
+      SEED_ON_EMPTY: "true"
+    ports: ["10100:10000"]
+    depends_on:
+      db:
+        condition: service_healthy
+  frontend:
+    build: ./frontend
+    ports: ["5000:80"]
+    depends_on: [api]
+volumes:
+  kitprep_pg:
