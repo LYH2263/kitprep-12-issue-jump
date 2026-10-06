@@ -17,6 +17,7 @@ class Ingredient(Base):
     name: Mapped[str] = mapped_column(String(128))
     unit: Mapped[str] = mapped_column(String(16), default="kg")
     stock_qty: Mapped[float] = mapped_column(Float, default=0.0)
+    reserved_qty: Mapped[float] = mapped_column(Float, default=0.0)
 
 class BomLine(Base):
     __tablename__ = "bom_lines"
@@ -44,4 +45,6 @@ class PrepRun(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     order_id: Mapped[int] = mapped_column(ForeignKey("kitchen_orders.id"))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    status: Mapped[str] = mapped_column(String(32), default="reserved")  # reserved=待领 / issued=已领
+    issued_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     result_json: Mapped[str] = mapped_column(Text, default="{}")
